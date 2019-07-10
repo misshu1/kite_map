@@ -5,6 +5,14 @@ import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 const LoadingContainer = () => null;
 
 class MapCore extends Component {
+    state = {
+        showingInfoWindow: false,
+        activeMarker: {},
+        selectedPlace: {}
+    };
+
+    async componentDidMount() {}
+
     render() {
         return (
             <MapContainer>
