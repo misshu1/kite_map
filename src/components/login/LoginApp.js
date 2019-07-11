@@ -13,21 +13,28 @@ class LoginApp extends Component {
     };
 
     handleSubmit = async e => {
+        const { username, password } = this.state;
         e.preventDefault();
-        const url = "https://ab4-kitesurfing.herokuapp.com/api-user-get";
+        const url = "https://ab4-kitesurfing.herokuapp.com/api-user-log-in";
 
         try {
             const data = await fetch(url, {
                 method: "POST",
-                body: JSON.stringify(this.state.username)
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: username, password: password })
             });
             const dataJson = data.ok
                 ? await data.json()
-                : alert(
-                      "Failed to get data from API" + new Error(data.statusText)
-                  );
+                : alert("Failed to Log In, " + new Error(data.statusText));
 
-            console.log(dataJson);
+            if (!localStorage.token) {
+                localStorage.setItem("token", dataJson.result.token);
+                this.props.handleLogIn(true);
+            } else {
+                this.props.handleLogIn(false);
+            }
         } catch (err) {
             console.log(err);
         }
@@ -35,15 +42,13 @@ class LoginApp extends Component {
 
     render() {
         return (
-            <React.Fragment>
-                <Form onSubmit={this.handleSubmit}>
-                    <p>Username</p>
-                    <UserInput id="username" onChange={this.handleChange} />
-                    <p>Password</p>
-                    <PasswordInput id="password" onChange={this.handleChange} />
-                    <LoginButton value="Login" />
-                </Form>
-            </React.Fragment>
+            <Form onSubmit={this.handleSubmit}>
+                <p>Username</p>
+                <UserInput id="username" onChange={this.handleChange} />
+                <p>Password</p>
+                <PasswordInput id="password" onChange={this.handleChange} />
+                <LoginButton value="Login" />
+            </Form>
         );
     }
 }
