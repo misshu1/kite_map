@@ -54,8 +54,11 @@ class MapCore extends PureComponent {
     };
 
     onMarkerClick = async (props, marker, e) => {
+        const place = this.state.placeData.filter(
+            item => item.name === marker.name
+        );
         await this.setState({
-            selectedPlace: props,
+            selectedPlace: place[0],
             activeMarker: marker,
             showingInfoWindow: true
         });
@@ -103,15 +106,15 @@ class MapCore extends PureComponent {
                     >
                         <InfoWindowStyle>
                             <h3>{selectedPlace.name}</h3>
-                            <span>country</span>
+                            <span>{selectedPlace.country}</span>
                             <h4>Wind Probability</h4>
-                            <span>wind%</span>
+                            <span>{selectedPlace.windProbability} %</span>
                             <h4>Latitude</h4>
-                            <span>Lat</span>
+                            <span>{selectedPlace.latitude}&#176; N</span>
                             <h4>Longitude</h4>
-                            <span>Lng</span>
+                            <span>{selectedPlace.longitude}&#176; N</span>
                             <h4>When To Go</h4>
-                            <span>month</span>
+                            <span>{selectedPlace.whenToGo}</span>
                             <button>+ Add To Favorites</button>
                         </InfoWindowStyle>
                     </InfoWindow>
