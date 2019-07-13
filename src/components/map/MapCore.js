@@ -1,16 +1,16 @@
 import React, { PureComponent } from "react";
-import { MapContainer, InfoWindowStyle } from "./style";
+import { MapContainer, InfoWindowStyle, MapStyle } from "./style";
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 
 const LoadingContainer = () => null;
-let allMarkers = [];
 
 class MapCore extends PureComponent {
     state = {
         showingInfoWindow: false,
         activeMarker: {},
         selectedPlace: {},
-        placeData: []
+        placeData: [],
+        allMarkers: []
     };
 
     async componentDidMount() {
@@ -30,28 +30,25 @@ class MapCore extends PureComponent {
                       "Failed to get data from Foursquare" +
                           new Error(data.statusText)
                   );
-            this.setState({ placeData: dataJson.result });
+            await this.setState({ placeData: dataJson.result });
+            await this.state.placeData.map(loc => {
+                this.setState(prevState => ({
+                    allMarkers: [
+                        ...prevState.allMarkers,
+                        <Marker
+                            name={loc.name}
+                            position={{ lat: loc.latitude, lng: loc.longitude }}
+                            key={loc.id}
+                            onClick={this.onMarkerClick}
+                            animation={window.google.maps.Animation.DROP}
+                        />
+                    ]
+                }));
+            });
         } catch (err) {
             console.log(err);
         }
     }
-
-    renderMarkers = () => {
-        if (allMarkers.length === 0) {
-            this.state.placeData.forEach(loc => {
-                allMarkers = [
-                    ...allMarkers,
-                    <Marker
-                        name={loc.name}
-                        position={{ lat: loc.latitude, lng: loc.longitude }}
-                        key={loc.id}
-                        onClick={this.onMarkerClick}
-                        animation={window.google.maps.Animation.DROP}
-                    />
-                ];
-            });
-        }
-    };
 
     onMarkerClick = async (props, marker, e) => {
         const place = this.state.placeData.filter(
@@ -86,12 +83,17 @@ class MapCore extends PureComponent {
     };
 
     render() {
-        const { selectedPlace, activeMarker, showingInfoWindow } = this.state;
+        const {
+            selectedPlace,
+            activeMarker,
+            showingInfoWindow,
+            allMarkers
+        } = this.state;
         return (
             <MapContainer>
                 <Map
                     google={this.props.google}
-                    onReady={this.renderMarkers()}
+                    styles={MapStyle}
                     zoom={3}
                     initialCenter={{
                         lat: 45.105083,
@@ -105,16 +107,18 @@ class MapCore extends PureComponent {
                         onClose={this.onClose}
                     >
                         <InfoWindowStyle>
-                            <h3>{selectedPlace.name}</h3>
-                            <span>{selectedPlace.country}</span>
-                            <h4>Wind Probability</h4>
-                            <span>{selectedPlace.windProbability} %</span>
-                            <h4>Latitude</h4>
-                            <span>{selectedPlace.latitude}&#176; N</span>
-                            <h4>Longitude</h4>
-                            <span>{selectedPlace.longitude}&#176; N</span>
-                            <h4>When To Go</h4>
-                            <span>{selectedPlace.whenToGo}</span>
+                            <div className="info">
+                                <h2>{selectedPlace.name}</h2>
+                                <span>{selectedPlace.country}</span>
+                                <h4>Wind Probability</h4>
+                                <span>{selectedPlace.windProbability} %</span>
+                                <h4>Latitude</h4>
+                                <span>{selectedPlace.latitude}&#176; N</span>
+                                <h4>Longitude</h4>
+                                <span>{selectedPlace.longitude}&#176; N</span>
+                                <h4>When To Go</h4>
+                                <span>{selectedPlace.whenToGo}</span>
+                            </div>
                             <button>+ Add To Favorites</button>
                         </InfoWindowStyle>
                     </InfoWindow>
