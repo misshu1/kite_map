@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const InfoWindowStyle = styled.div`
-    min-width: 15rem;
+    width: 15rem;
     .info {
         margin: 1rem 2.5rem 1rem 1rem;
     }

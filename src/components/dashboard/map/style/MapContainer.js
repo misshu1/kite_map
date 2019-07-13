@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const MapContainer = styled.div`
-    width: 100%;
-    height: 100%;
+    height: 35rem;
+    max-width: 60rem;
     .gm-style-iw-d {
         margin: 0;
         padding: 0;

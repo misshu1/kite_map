@@ -3,8 +3,12 @@ import { MapContainer, InfoWindowStyle, MapStyle } from "./style";
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 
 const LoadingContainer = () => null;
+const mapSize = {
+    maxWidth: "60rem",
+    height: "35rem"
+};
 
-class MapCore extends PureComponent {
+class MapApp extends PureComponent {
     state = {
         showingInfoWindow: false,
         activeMarker: {},
@@ -27,12 +31,11 @@ class MapCore extends PureComponent {
             const dataJson = data.ok
                 ? await data.json()
                 : alert(
-                      "Failed to get data from Foursquare" +
-                          new Error(data.statusText)
+                      "Failed to get data from API" + new Error(data.statusText)
                   );
             await this.setState({ placeData: dataJson.result });
             await this.state.placeData.map(loc => {
-                this.setState(prevState => ({
+                return this.setState(prevState => ({
                     allMarkers: [
                         ...prevState.allMarkers,
                         <Marker
@@ -50,7 +53,7 @@ class MapCore extends PureComponent {
         }
     }
 
-    onMarkerClick = async (props, marker, e) => {
+    onMarkerClick = async (props, marker) => {
         const place = this.state.placeData.filter(
             item => item.name === marker.name
         );
@@ -99,6 +102,7 @@ class MapCore extends PureComponent {
                         lat: 45.105083,
                         lng: 24.364982
                     }}
+                    style={mapSize}
                 >
                     {allMarkers}
                     <InfoWindow
@@ -130,4 +134,4 @@ class MapCore extends PureComponent {
 export default GoogleApiWrapper({
     apiKey: "AIzaSyA8OGJ85mGxQD0gRwJT03Raj6Vdi3RHvS4",
     LoadingContainer: LoadingContainer
-})(MapCore);
+})(MapApp);

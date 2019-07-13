@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { GlobalStyle } from "./components/style";
-import MapCore from "./components/map/MapCore";
 import LoginApp from "./components/login/LoginApp";
+import DashboardApp from "./components/dashboard/DashboardApp";
 
 class App extends Component {
     state = {
@@ -23,16 +23,14 @@ class App extends Component {
 
     render() {
         return (
-            <div>
+            <React.Fragment>
                 <GlobalStyle />
-                <div className="App">
-                    {!this.state.logIn ? (
-                        <LoginApp handleLogIn={this.handleLogIn} />
-                    ) : (
-                        <MapCore />
-                    )}
-                </div>
-            </div>
+                {!this.state.logIn ? (
+                    <LoginApp handleLogIn={this.handleLogIn} />
+                ) : (
+                    <DashboardApp />
+                )}
+            </React.Fragment>
         );
     }
 }
