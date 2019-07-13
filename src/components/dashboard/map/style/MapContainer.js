@@ -1,6 +1,10 @@
 import styled from "styled-components";
 
 export const MapContainer = styled.div`
+    .map {
+        max-width: 60rem !important;
+        height: 35rem !important;
+    }
     height: 35rem;
     max-width: 60rem;
     .gm-style-iw-d {

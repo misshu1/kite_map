@@ -103,6 +103,7 @@ class MapApp extends PureComponent {
                         lng: 24.364982
                     }}
                     style={mapSize}
+                    className="map"
                 >
                     {allMarkers}
                     <InfoWindow
