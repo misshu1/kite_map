@@ -1,9 +1,17 @@
 import React, { Component } from "react";
-import { Form, UserInput, PasswordInput, LoginButton } from "./style";
+import {
+    Form,
+    UserInput,
+    PasswordInput,
+    LoginButton,
+    Container
+} from "./style";
 class LoginApp extends Component {
     state = {
-        username: "",
-        password: ""
+        usernameLogIn: "",
+        passwordLogIn: "",
+        usernameSingUp: "",
+        passwordSingUp: ""
     };
 
     handleChange = e => {
@@ -12,8 +20,40 @@ class LoginApp extends Component {
         });
     };
 
-    handleSubmit = async e => {
-        const { username, password } = this.state;
+    handleSubmitSingUp = async e => {
+        const { usernameSingUp, passwordSingUp } = this.state;
+        e.preventDefault();
+        const url = "https://ab4-kitesurfing.herokuapp.com/api-user-sing-up";
+
+        try {
+            const data = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: usernameSingUp,
+                    password: passwordSingUp
+                })
+            });
+            const dataJson = data.ok
+                ? await data.json()
+                : alert("Failed to Log In, " + new Error(data.statusText));
+
+            if (!localStorage.token) {
+                localStorage.setItem("token", dataJson.result.token);
+                this.props.handleLogIn(true);
+            } else {
+                this.props.handleLogIn(false);
+            }
+            console.log(dataJson);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    handleSubmitLogIn = async e => {
+        const { usernameLogIn, passwordLogIn } = this.state;
         e.preventDefault();
         const url = "https://ab4-kitesurfing.herokuapp.com/api-user-log-in";
 
@@ -23,7 +63,10 @@ class LoginApp extends Component {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ email: username, password: password })
+                body: JSON.stringify({
+                    email: usernameLogIn,
+                    password: passwordLogIn
+                })
             });
             const dataJson = data.ok
                 ? await data.json()
@@ -42,13 +85,34 @@ class LoginApp extends Component {
 
     render() {
         return (
-            <Form onSubmit={this.handleSubmit}>
-                <p>Username</p>
-                <UserInput id="username" onChange={this.handleChange} />
-                <p>Password</p>
-                <PasswordInput id="password" onChange={this.handleChange} />
-                <LoginButton value="Login" />
-            </Form>
+            <Container>
+                <Form onSubmit={this.handleSubmitLogIn}>
+                    <p>Username</p>
+                    <UserInput
+                        id="usernameLogIn"
+                        onChange={this.handleChange}
+                    />
+                    <p>Password</p>
+                    <PasswordInput
+                        id="passwordLogIn"
+                        onChange={this.handleChange}
+                    />
+                    <LoginButton value="Login" />
+                </Form>
+                {/* <Form onSubmit={this.handleSubmitSingUp}>
+                    <p>Username</p>
+                    <UserInput
+                        id="usernameSingUp"
+                        onChange={this.handleChange}
+                    />
+                    <p>Password</p>
+                    <PasswordInput
+                        id="passwordSingUp"
+                        onChange={this.handleChange}
+                    />
+                    <LoginButton value="Sing Up" />
+                </Form> */}
+            </Container>
         );
     }
 }
