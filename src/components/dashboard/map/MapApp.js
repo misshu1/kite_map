@@ -1,7 +1,13 @@
 import React, { PureComponent, Component } from "react";
-import { MapContainer, InfoWindowStyle, MapStyle, FavoriteBtn } from "./style";
-import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 import ReactDOM from "react-dom";
+import {
+    MapContainer,
+    InfoWindowStyle,
+    MapStyle,
+    FavoriteBtn,
+    FilterIcon
+} from "./style";
+import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 
 const LoadingContainer = () => null;
 const mapSize = {
@@ -40,10 +46,25 @@ class MapApp extends PureComponent {
         selectedPlace: {},
         placeData: [],
         allMarkers: [],
+        countryInput: "",
+        windProbabilityInput: "",
         markerIconDefault:
             "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
         markerIconFavorite:
             "http://maps.google.com/mapfiles/kml/paddle/purple-stars.png"
+    };
+
+    componentDidUpdate(prevProps, prevState) {
+        if (
+            prevState.countryInput !== this.state.countryInput ||
+            prevState.windProbabilityInput !== this.state.windProbabilityInput
+        ) {
+            this.filter();
+        }
+    }
+
+    updateInputState = (name, e) => {
+        this.setState({ [name]: e.target.value });
     };
 
     async componentDidMount() {
@@ -73,6 +94,8 @@ class MapApp extends PureComponent {
                                 lat: loc.latitude,
                                 lng: loc.longitude
                             }}
+                            country={loc.country}
+                            windProbability={loc.windProbability}
                             key={loc.id}
                             onClick={this.onMarkerClick}
                             animation={window.google.maps.Animation.DROP}
@@ -156,6 +179,60 @@ class MapApp extends PureComponent {
         }
     };
 
+    filter = async () => {
+        const url = "https://ab4-kitesurfing.herokuapp.com/api-spot-get-all";
+        try {
+            const data = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    token: localStorage.token
+                },
+                body: JSON.stringify({
+                    country: this.state.countryInput.replace(/\b\w/g, l =>
+                        l.toUpperCase()
+                    ),
+                    windProbability: Number(this.state.windProbabilityInput)
+                })
+            });
+            const dataJson = data.ok
+                ? await data.json()
+                : alert(
+                      "Failed to get data from API" + new Error(data.statusText)
+                  );
+            await this.setState({ allMarkers: [] });
+            await this.setState({ placeData: dataJson.result });
+            if (this.state.allMarkers.length === 0) {
+                this.state.placeData.map(loc => {
+                    return this.setState(prevState => ({
+                        allMarkers: [
+                            ...prevState.allMarkers,
+                            <Marker
+                                name={loc.name}
+                                position={{
+                                    lat: loc.latitude,
+                                    lng: loc.longitude
+                                }}
+                                country={loc.country}
+                                windProbability={loc.windProbability}
+                                key={loc.id}
+                                onClick={this.onMarkerClick}
+                                animation={window.google.maps.Animation.DROP}
+                                options={{
+                                    icon: loc.isFavorite
+                                        ? this.state.markerIconFavorite
+                                        : this.state.markerIconDefault
+                                }}
+                            />
+                        ]
+                    }));
+                });
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     render() {
         const {
             selectedPlace,
@@ -165,6 +242,18 @@ class MapApp extends PureComponent {
         } = this.state;
         return (
             <MapContainer>
+                <FilterIcon tabIndex="0">
+                    <p>Country</p>
+                    <input
+                        onChange={e => this.updateInputState("countryInput", e)}
+                    />
+                    <p>Wind Probability</p>
+                    <input
+                        onChange={e =>
+                            this.updateInputState("windProbabilityInput", e)
+                        }
+                    />
+                </FilterIcon>
                 <Map
                     google={this.props.google}
                     styles={MapStyle}

@@ -7,6 +7,7 @@ export const MapContainer = styled.div`
     }
     height: 35rem;
     max-width: 60rem;
+    position: relative;
     .gm-style-iw-d {
         margin: 0;
         padding: 0;
