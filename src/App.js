@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Route, Redirect, Switch } from "react-router-dom";
 import { GlobalStyle } from "./components/style";
 import LoginApp from "./components/login/LoginApp";
 import DashboardApp from "./components/dashboard/DashboardApp";
@@ -27,8 +27,7 @@ class App extends Component {
             <React.Fragment>
                 <GlobalStyle />
                 {!this.state.logIn ? (
-                    <React.Fragment>
-                        <Redirect to={{ pathname: "/login" }} />
+                    <Switch>
                         <Route
                             exact
                             path="/login"
@@ -36,17 +35,18 @@ class App extends Component {
                                 <LoginApp handleLogIn={this.handleLogIn} />
                             )}
                         />
-                    </React.Fragment>
+                        <Redirect to={{ pathname: "/login" }} />
+                    </Switch>
                 ) : (
-                    <React.Fragment>
-                        <Redirect to={{ pathname: "/" }} />
+                    <Switch>
                         <Route
                             path="/"
                             render={() => (
                                 <DashboardApp handleLogIn={this.handleLogIn} />
                             )}
                         />
-                    </React.Fragment>
+                        <Redirect to={{ pathname: "/" }} />
+                    </Switch>
                 )}
             </React.Fragment>
         );
