@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const Details = styled.div`
+    padding: 0 0.5rem;
     table {
         border-collapse: collapse;
         table-layout: fixed;
@@ -19,30 +20,23 @@ export const Details = styled.div`
     }
 
     .buttons {
-        width: fit-content;
-        height: 2rem;
         display: flex;
-        align-items: center;
+        height: 2rem;
         margin: 0;
     }
 
-    .desktop {
-        background: #ccc;
-    }
+    .desktop,
     .mobile-thead {
         background: #6d6d6e;
         color: #d6d8de;
     }
 
-    @media (min-width: 37.5rem) {
+    @media (min-width: 37.555rem) {
         .mobile {
             display: none;
         }
     }
-    @media (max-width: 37.5rem) {
-        /* table {
-            max-width: 70%;
-        } */
+    @media (max-width: 37.555rem) {
         .desktop {
             display: none;
         }

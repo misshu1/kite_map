@@ -1,6 +1,7 @@
-import React, { PureComponent } from "react";
-import { MapContainer, InfoWindowStyle, MapStyle } from "./style";
+import React, { PureComponent, Component } from "react";
+import { MapContainer, InfoWindowStyle, MapStyle, FavoriteBtn } from "./style";
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
+import ReactDOM from "react-dom";
 
 const LoadingContainer = () => null;
 const mapSize = {
@@ -8,13 +9,41 @@ const mapSize = {
     height: "35rem"
 };
 
+// This component is used to enable add to favorites button insite InfoWindow
+class InfoWindowEx extends Component {
+    constructor(props) {
+        super(props);
+        this.infoWindowRef = React.createRef();
+        this.contentElement = document.createElement(`div`);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.children !== prevProps.children) {
+            ReactDOM.render(
+                React.Children.only(this.props.children),
+                this.contentElement
+            );
+            this.infoWindowRef.current.infowindow.setContent(
+                this.contentElement
+            );
+        }
+    }
+    render() {
+        return <InfoWindow ref={this.infoWindowRef} {...this.props} />;
+    }
+}
+
 class MapApp extends PureComponent {
     state = {
         showingInfoWindow: false,
         activeMarker: {},
         selectedPlace: {},
         placeData: [],
-        allMarkers: []
+        allMarkers: [],
+        markerIconDefault:
+            "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+        markerIconFavorite:
+            "http://maps.google.com/mapfiles/kml/paddle/purple-stars.png"
     };
 
     async componentDidMount() {
@@ -40,10 +69,18 @@ class MapApp extends PureComponent {
                         ...prevState.allMarkers,
                         <Marker
                             name={loc.name}
-                            position={{ lat: loc.latitude, lng: loc.longitude }}
+                            position={{
+                                lat: loc.latitude,
+                                lng: loc.longitude
+                            }}
                             key={loc.id}
                             onClick={this.onMarkerClick}
                             animation={window.google.maps.Animation.DROP}
+                            options={{
+                                icon: loc.isFavorite
+                                    ? this.state.markerIconFavorite
+                                    : this.state.markerIconDefault
+                            }}
                         />
                     ]
                 }));
@@ -53,7 +90,7 @@ class MapApp extends PureComponent {
         }
     }
 
-    onMarkerClick = async (props, marker) => {
+    onMarkerClick = async (props, marker, e) => {
         const place = this.state.placeData.filter(
             item => item.name === marker.name
         );
@@ -85,6 +122,40 @@ class MapApp extends PureComponent {
         }
     };
 
+    addToFavorites = () => {
+        const url =
+            "https://ab4-kitesurfing.herokuapp.com/api-spot-favorites-add";
+        try {
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    token: localStorage.token
+                },
+                body: JSON.stringify({ spotId: this.state.selectedPlace.id })
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    removeFromFavorites = () => {
+        const url =
+            "https://ab4-kitesurfing.herokuapp.com/api-spot-favorites-remove";
+        try {
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    token: localStorage.token
+                },
+                body: JSON.stringify({ spotId: this.state.selectedPlace.id })
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     render() {
         const {
             selectedPlace,
@@ -106,7 +177,7 @@ class MapApp extends PureComponent {
                     className="map"
                 >
                     {allMarkers}
-                    <InfoWindow
+                    <InfoWindowEx
                         marker={activeMarker}
                         visible={showingInfoWindow}
                         onClose={this.onClose}
@@ -124,9 +195,23 @@ class MapApp extends PureComponent {
                                 <h4>When To Go</h4>
                                 <span>{selectedPlace.whenToGo}</span>
                             </div>
-                            <button>+ Add To Favorites</button>
+                            {selectedPlace.isFavorite ? (
+                                <FavoriteBtn
+                                    onClick={this.removeFromFavorites}
+                                    favorite={selectedPlace.isFavorite}
+                                >
+                                    - Remove From Favorites
+                                </FavoriteBtn>
+                            ) : (
+                                <FavoriteBtn
+                                    onClick={this.addToFavorites}
+                                    favorite={selectedPlace.isFavorite}
+                                >
+                                    + Add To Favorites
+                                </FavoriteBtn>
+                            )}
                         </InfoWindowStyle>
-                    </InfoWindow>
+                    </InfoWindowEx>
                 </Map>
             </MapContainer>
         );

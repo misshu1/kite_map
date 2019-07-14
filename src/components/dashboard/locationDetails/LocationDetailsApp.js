@@ -120,13 +120,17 @@ class LocationDetailsApp extends Component {
                                     Country
                                 </ThMobile>
                                 <ThMobile show={selected.coordonates}>
-                                    Lat
+                                    Latitude
                                 </ThMobile>
                                 <ThMobile show={selected.coordonates}>
-                                    Lng
+                                    Longitude
                                 </ThMobile>
-                                <ThMobile show={selected.wind}>Wind %</ThMobile>
-                                <ThMobile show={selected.date}>Date</ThMobile>
+                                <ThMobile show={selected.wind}>
+                                    Wind Probability
+                                </ThMobile>
+                                <ThMobile show={selected.date}>
+                                    When to go
+                                </ThMobile>
                             </tr>
                         </thead>
                         <thead className="desktop">
