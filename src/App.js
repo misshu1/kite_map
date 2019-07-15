@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Route, Redirect, Switch } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import { GlobalStyle } from "./components/style";
 import LoginApp from "./components/login/LoginApp";
 import DashboardApp from "./components/dashboard/DashboardApp";
@@ -23,31 +23,32 @@ class App extends Component {
     };
 
     render() {
+        const { logIn } = this.state;
         return (
             <React.Fragment>
                 <GlobalStyle />
-                {!this.state.logIn ? (
-                    <Switch>
-                        <Route
-                            exact
-                            path="/login"
-                            render={() => (
-                                <LoginApp handleLogIn={this.handleLogIn} />
-                            )}
-                        />
-                        <Redirect to={{ pathname: "/login" }} />
-                    </Switch>
-                ) : (
-                    <Switch>
-                        <Route
-                            path="/"
-                            render={() => (
-                                <DashboardApp handleLogIn={this.handleLogIn} />
-                            )}
-                        />
-                        <Redirect to={{ pathname: "/" }} />
-                    </Switch>
-                )}
+                <Route
+                    exact
+                    path="/"
+                    render={() =>
+                        logIn || localStorage.token ? (
+                            <DashboardApp handleLogIn={this.handleLogIn} />
+                        ) : (
+                            <Redirect to="/login" />
+                        )
+                    }
+                />
+                <Route
+                    exact
+                    path="/login"
+                    render={() =>
+                        logIn || localStorage.token ? (
+                            <Redirect to="/" />
+                        ) : (
+                            <LoginApp handleLogIn={this.handleLogIn} />
+                        )
+                    }
+                />
             </React.Fragment>
         );
     }
