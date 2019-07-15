@@ -15,6 +15,9 @@ export const FilterIcon = styled.div`
         clip-path: circle(75%);
         outline: none;
         background: #fff;
+        && input {
+            background: #fff;
+        }
     }
     p {
         margin: 0.5rem 0;
@@ -27,9 +30,10 @@ export const FilterIcon = styled.div`
         height: 2rem;
         line-height: 1.6;
         font-size: 1rem;
+        background: #4287f5;
+        transition: all 0.3s ease-in-out;
     }
     && input:focus {
         border-bottom: 3px solid #4287f5;
-        transition: border 0.2s ease-in-out;
     }
 `;
